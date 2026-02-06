@@ -6,6 +6,7 @@ public record DatosDetalleTopico(
         Long id,
         String titulo,
         String mensaje,
+        Long autor,
         LocalDateTime fechaCreacion
 ) {
 
@@ -14,6 +15,7 @@ public record DatosDetalleTopico(
                 topico.getId(),
                 topico.getTitulo(),
                 topico.getMensaje(),
+                topico.getAutor().getId(),
                 topico.getFechaCreacion()
         );
     }

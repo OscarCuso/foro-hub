@@ -1,5 +1,6 @@
 package com.alura.foroHub.controller;
 
+import com.alura.foroHub.domain.service.SolucionService;
 import com.alura.foroHub.domain.topico.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import java.nio.file.AccessDeniedException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 @RestController
@@ -18,17 +20,30 @@ import java.time.LocalDateTime;
 public class TopicoController {
 
     @Autowired
+    private RegistroDeTopicos registro;
+
+    @Autowired
     private TopicoRepository repository;
 
-    @Transactional
-    @PostMapping
-    public ResponseEntity registrarTopico(@RequestBody @Valid DatosRegistroTopico datos, UriComponentsBuilder uriComponentsBuilder){
-        var topico = new Topico(datos);
-        repository.save(topico);
+    @Autowired
+    private SolucionService solucionService;
 
-        var uri = uriComponentsBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DatosDetalleTopico(topico));
+    @PostMapping
+    @Transactional
+    public ResponseEntity registrarTopico(@RequestBody @Valid DatosRegistroTopico datos){
+        var detalleTopico = registro.registrar(datos);
+        return ResponseEntity.ok(detalleTopico);
     }
+
+//    @Transactional
+//    @PostMapping
+//    public ResponseEntity registrarTopico(@RequestBody @Valid DatosRegistroTopico datos, UriComponentsBuilder uriComponentsBuilder){
+//        var topico = new Topico(datos);
+//        repository.save(topico);
+//
+//        var uri = uriComponentsBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+//        return ResponseEntity.created(uri).body(new DatosDetalleTopico(topico));
+//    }
 
     @GetMapping
     public ResponseEntity<?> listarTopicos(
@@ -37,16 +52,22 @@ public class TopicoController {
             @PageableDefault(size= 10, sort ={"fechaCreacion"})
             Pageable paginacion){
         if(curso != null){
-            var topicoBuscadoCurso = repository.findByNombreCurso(curso, paginacion);
-            return ResponseEntity.ok(topicoBuscadoCurso.getContent());
+            return ResponseEntity.ok(
+                    repository.findByNombreCurso(curso, paginacion)
+                            .map(DatosListaTopico::new)
+            );
         }
         if(anio != null){
             var inicio = LocalDateTime.of(anio, 1, 1, 0, 0);
             var fin = LocalDateTime.of(anio, 12, 31, 23, 59, 59);
-            var topicoBuscadoAnio = repository.findByAnio(inicio, fin, paginacion);
-            return  ResponseEntity.ok(topicoBuscadoAnio.getContent());
+            return  ResponseEntity.ok(
+                    repository.findByAnio(inicio, fin, paginacion)
+                            .map(DatosListaTopico::new)
+            );
         }
-        return ResponseEntity.ok(repository.findAll(paginacion));
+        return ResponseEntity.ok(repository.findAll(paginacion)
+                .map(DatosListaTopico::new)
+        );
     }
 
     @GetMapping("/{id}")
@@ -87,5 +108,21 @@ public class TopicoController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{topicoId}/respuestas/{respuestaId}/solucion")
+    public ResponseEntity<Void> marcarSolucion(
+            @PathVariable Long topicoId,
+            @PathVariable Long respuestaId,
+            Principal principal
+    ) throws AccessDeniedException {
+        String usuarioLogueado = principal.getName();
+
+        solucionService.marcarSolucion(
+                topicoId,
+                respuestaId,
+                usuarioLogueado
+        );
+        return ResponseEntity.noContent().build();
     }
 }

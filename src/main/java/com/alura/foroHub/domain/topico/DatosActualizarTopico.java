@@ -6,7 +6,7 @@ public record DatosActualizarTopico(
         String titulo,
         String mensaje,
         Boolean status,
-        String autor,
+        Long autor,
         String nombreCurso
 ) {
 }

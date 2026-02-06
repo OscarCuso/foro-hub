@@ -1,7 +1,6 @@
 package com.alura.foroHub.domain.topico;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alura.foroHub.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -25,17 +24,31 @@ public class Topico {
     private String mensaje;
     private LocalDateTime fechaCreacion;
     private Boolean status;
-    private String autor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "autor_id")
+    private Usuario autor;
+
     private String nombreCurso;
 
-    public Topico(DatosRegistroTopico datos){
+//    public Topico(DatosRegistroTopico datos){
+//        this.id = null;
+//        this.titulo = datos.titulo();
+//        this.mensaje = datos.mensaje();
+//        this.fechaCreacion = LocalDateTime.now();
+//        this.status = true;
+//        this.autor = datos.autor();
+//        this.nombreCurso = datos.nombreCurso();
+//    }
+
+    public Topico(Long id, String titulo, String mensaje, Usuario autor, String nombreCurso){
         this.id = null;
-        this.titulo = datos.titulo();
-        this.mensaje = datos.mensaje();
+        this.titulo = titulo;
+        this.mensaje = mensaje;
         this.fechaCreacion = LocalDateTime.now();
         this.status = true;
-        this.autor = datos.autor();
-        this.nombreCurso = datos.nombreCurso();
+        this.autor = autor;
+        this.nombreCurso = nombreCurso;
     }
 
     public void actualizarInformacion(@Valid DatosActualizarTopico datos) {
@@ -47,9 +60,6 @@ public class Topico {
         }
         if(datos.status() != null){
             this.status = datos.status();
-        }
-        if(datos.autor() != null){
-            this.autor = datos.autor();
         }
         if(datos.nombreCurso() != null){
             this.nombreCurso = datos.nombreCurso();
