@@ -1,22 +1,24 @@
 package com.alura.foroHub.domain.respuesta;
 
+import com.alura.foroHub.domain.topico.DatosDetalleTopico;
+
 import java.time.LocalDateTime;
 
 public record DatosListaRespuesta(
         Long id,
         String mensaje,
-        Long topico,
+        DatosDetalleTopico topico,
         LocalDateTime fechaCreacion,
-        Long autor,
+        String autor,
         Boolean solucion
 ) {
     public DatosListaRespuesta(Respuesta respuesta){
         this(
                 respuesta.getId(),
                 respuesta.getMensaje(),
-                respuesta.getTopico().getId(),
+                new DatosDetalleTopico(respuesta.getTopico()),
                 respuesta.getFechaCreacion(),
-                respuesta.getAutor().getId(),
+                respuesta.getAutor().getNombre(),
                 respuesta.getSolucion()
         );
     }

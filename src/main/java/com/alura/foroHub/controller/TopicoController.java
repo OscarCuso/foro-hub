@@ -1,6 +1,7 @@
 package com.alura.foroHub.controller;
 
 import com.alura.foroHub.domain.service.SolucionService;
+import com.alura.foroHub.domain.service.TopicoService;
 import com.alura.foroHub.domain.topico.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.file.AccessDeniedException;
 import java.security.Principal;
@@ -19,8 +21,8 @@ import java.time.LocalDateTime;
 //@SecurityRequirement(name = "bearer-key")
 public class TopicoController {
 
-    @Autowired
-    private RegistroDeTopicos registro;
+//    @Autowired
+//    private RegistroDeTopicos registro;
 
     @Autowired
     private TopicoRepository repository;
@@ -28,11 +30,19 @@ public class TopicoController {
     @Autowired
     private SolucionService solucionService;
 
+    @Autowired
+    private TopicoService topicoService;
+
     @PostMapping
     @Transactional
-    public ResponseEntity registrarTopico(@RequestBody @Valid DatosRegistroTopico datos){
-        var detalleTopico = registro.registrar(datos);
-        return ResponseEntity.ok(detalleTopico);
+    public ResponseEntity registrarTopico(
+            @RequestBody @Valid DatosRegistroTopico datos,
+            Principal principal,
+            UriComponentsBuilder uriComponentsBuilder
+    ){
+        var topico = topicoService.registrar(datos, principal.getName());
+        var uri = uriComponentsBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+        return ResponseEntity.created(uri).body(new DatosDetalleTopico(topico));
     }
 
 //    @Transactional
@@ -53,7 +63,7 @@ public class TopicoController {
             Pageable paginacion){
         if(curso != null){
             return ResponseEntity.ok(
-                    repository.findByNombreCurso(curso, paginacion)
+                    repository.findByCursoNombre(curso, paginacion)
                             .map(DatosListaTopico::new)
             );
         }
@@ -123,6 +133,16 @@ public class TopicoController {
                 respuestaId,
                 usuarioLogueado
         );
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("{id}/cerrar")
+    @Transactional
+    public ResponseEntity cerrar(
+            @PathVariable Long id,
+            Principal principal
+    ){
+        topicoService.cerrar(id, principal.getName());
         return ResponseEntity.noContent().build();
     }
 }

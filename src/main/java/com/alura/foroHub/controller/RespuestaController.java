@@ -1,6 +1,7 @@
 package com.alura.foroHub.controller;
 
 import com.alura.foroHub.domain.respuesta.*;
+import com.alura.foroHub.domain.service.RespuestaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 @RestController
@@ -16,16 +18,30 @@ import java.time.LocalDateTime;
 public class RespuestaController {
 
     @Autowired
-    private RegistroDeRespuesta registro;
+    private RespuestaService respuestaService;
 
     @Autowired
     private RespuestaRepository repository;
 
-    @PostMapping
-    @Transactional
-    public ResponseEntity registrarRespuesta(@RequestBody @Valid DatosRegistroRespuesta datos){
-        var detalleRespuesta = registro.registrar(datos);
-        return ResponseEntity.ok(detalleRespuesta);
+//    @PostMapping
+//    @Transactional
+//    public ResponseEntity registrarRespuesta(@RequestBody @Valid DatosRegistroRespuesta datos){
+//        var detalleRespuesta = registro.registrar(datos);
+//        return ResponseEntity.ok(detalleRespuesta);
+//    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<DatosDetalleRespuesta> registrarRespuesta(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosRegistroRespuesta datos,
+            Principal principal
+    ){
+        Respuesta respuesta = respuestaService.registrarRespuesta(
+                id,
+                datos,
+                principal.getName()
+                );
+        return ResponseEntity.ok(new DatosDetalleRespuesta(respuesta));
     }
 
     @GetMapping

@@ -12,7 +12,9 @@ import java.util.Optional;
 public interface TopicoRepository extends JpaRepository<Topico, Long> {
     Page<Topico> findAll(Pageable pageable);
 
-    Page<Topico> findByNombreCurso(String curso, Pageable pageable);
+
+
+    Page<Topico> findByCursoNombre(String curso, Pageable pageable);
 
     @Query("""
             select t from Topico t

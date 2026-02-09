@@ -1,15 +1,15 @@
 package com.alura.foroHub.domain.respuesta;
 
-import com.alura.foroHub.domain.topico.Topico;
+import com.alura.foroHub.domain.topico.DatosDetalleTopico;
 
 import java.time.LocalDateTime;
 
 public record DatosDetalleRespuesta(
         Long id,
         String mensaje,
-        Long topico,
+        DatosDetalleTopico topico,
         LocalDateTime fechaCreacion,
-        Long autor,
+        String autor,
         Boolean solucion
 ) {
 
@@ -17,9 +17,9 @@ public record DatosDetalleRespuesta(
         this(
                 respuesta.getId(),
                 respuesta.getMensaje(),
-                respuesta.getTopico().getId(),
+                new DatosDetalleTopico(respuesta.getTopico()),
                 respuesta.getFechaCreacion(),
-                respuesta.getAutor().getId(),
+                respuesta.getAutor().getNombre(),
                 respuesta.getSolucion()
         );
     }
