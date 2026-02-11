@@ -2,6 +2,7 @@ package com.alura.foroHub.controller;
 
 import com.alura.foroHub.domain.respuesta.*;
 import com.alura.foroHub.domain.service.RespuestaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/respuestas")
+@SecurityRequirement(name = "bearer-key")
 public class RespuestaController {
 
     @Autowired

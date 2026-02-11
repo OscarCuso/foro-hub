@@ -3,6 +3,7 @@ package com.alura.foroHub.controller;
 import com.alura.foroHub.domain.service.SolucionService;
 import com.alura.foroHub.domain.service.TopicoService;
 import com.alura.foroHub.domain.topico.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/topicos")
-//@SecurityRequirement(name = "bearer-key")
+@SecurityRequirement(name = "bearer-key")
 public class TopicoController {
 
 //    @Autowired
